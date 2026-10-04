@@ -27,6 +27,10 @@ public interface BookService {
 
   void delete(Long id);
 
+  BookResponse borrow(Long id);
+
+  BookResponse returnBook(Long id);
+  
   RatingResponse addRating(Long id, RatingRequest request);
 
   RatingResponse getRating(Long id);

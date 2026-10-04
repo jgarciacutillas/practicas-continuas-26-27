@@ -15,6 +15,7 @@ import com.library.dto.BookRequest;
 import com.library.dto.BookResponse;
 import com.library.dto.BookSearchCriteria;
 import com.library.dto.BookSearchResponse;
+import com.library.exception.BookCopiesConflictException;
 import com.library.dto.RatingRequest;
 import com.library.dto.RatingResponse;
 import com.library.dto.BookStatsResponse;
@@ -148,6 +149,7 @@ public class BookServiceImpl implements BookService {
                 normalize(criteria.genre()),
                 criteria.minYear(),
                 criteria.maxYear(),
+                criteria.available(),
                 pageable)
             .map(bookMapper::toResponse);
 
@@ -167,6 +169,7 @@ public class BookServiceImpl implements BookService {
     book.setIsbn(request.isbn());
     book.setPublishedYear(request.publishedYear());
     book.setPages(request.pages());
+    updateCopies(book, request.copies());
 
     return bookMapper.toResponse(bookRepository.save(book));
   }
@@ -180,6 +183,29 @@ public class BookServiceImpl implements BookService {
   }
 
   @Override
+  public BookResponse borrow(Long id) {
+    Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+
+    if (book.getAvailableCopies() <= 0) {
+      throw BookCopiesConflictException.noCopiesAvailable(id);
+    }
+
+    book.setAvailableCopies(book.getAvailableCopies() - 1);
+    return bookMapper.toResponse(bookRepository.save(book));
+  }
+
+  @Override
+  public BookResponse returnBook(Long id) {
+    Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+
+    if (book.getAvailableCopies() >= book.getCopies()) {
+      throw BookCopiesConflictException.allCopiesReturned(id);
+    }
+
+    book.setAvailableCopies(book.getAvailableCopies() + 1);
+    return bookMapper.toResponse(bookRepository.save(book));
+  }
+  
   public RatingResponse addRating(Long id, RatingRequest request) {
     Book book =
         bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
@@ -216,6 +242,19 @@ public class BookServiceImpl implements BookService {
     if (isbn != null && !isbn.isBlank() && bookRepository.existsByIsbnAndIdNot(isbn, id)) {
       throw new DuplicateBookException(isbn);
     }
+  }
+
+  private void updateCopies(Book book, Integer copies) {
+    if (copies == null) {
+      return;
+    }
+    int borrowedCopies = book.getCopies() - book.getAvailableCopies();
+    if (copies < borrowedCopies) {
+      throw new InvalidBookException(
+          "El número de ejemplares no puede ser menor que los prestados (" + borrowedCopies + ")");
+    }
+    book.setCopies(copies);
+    book.setAvailableCopies(copies - borrowedCopies);
   }
 
   private void validateBusinessRules(BookRequest request) {
