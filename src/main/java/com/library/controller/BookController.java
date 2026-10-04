@@ -42,7 +42,7 @@ public class BookController {
     return ResponseEntity.ok(bookService.findAll());
   }
 
-  @GetMapping("/estadisticas")
+  @GetMapping("/librarystats")
   public ResponseEntity<BookStatsResponse> getStats() {
     return ResponseEntity.ok(bookService.getStats());
   }
