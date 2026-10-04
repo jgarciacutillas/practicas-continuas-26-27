@@ -1,38 +1,25 @@
 package com.library.service;
 
-import java.time.Year;
-import java.util.List;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import com.library.dto.BookRequest;
 import com.library.dto.BookResponse;
 import com.library.dto.BookSearchCriteria;
 import com.library.dto.BookSearchResponse;
-import com.library.exception.BookCopiesConflictException;
+import com.library.dto.BookStatsResponse;
 import com.library.dto.RatingRequest;
 import com.library.dto.RatingResponse;
-import com.library.dto.BookStatsResponse;
+import com.library.exception.BookCopiesConflictException;
 import com.library.exception.BookNotFoundException;
 import com.library.exception.DuplicateBookException;
 import com.library.exception.InvalidBookException;
@@ -439,7 +426,8 @@ class BookServiceImplTest {
   void addRating_withMissingBook_throwsNotFound() {
     when(bookRepository.findById(99L)).thenReturn(Optional.empty());
 
-    assertThrows(BookNotFoundException.class, () -> bookService.addRating(99L, new RatingRequest(5)));
+    assertThrows(
+        BookNotFoundException.class, () -> bookService.addRating(99L, new RatingRequest(5)));
     verify(bookRepository, never()).save(any());
   }
 

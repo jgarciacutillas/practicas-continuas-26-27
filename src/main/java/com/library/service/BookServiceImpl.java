@@ -1,24 +1,13 @@
 package com.library.service;
 
-import java.time.Year;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.library.dto.BookRequest;
 import com.library.dto.BookResponse;
 import com.library.dto.BookSearchCriteria;
 import com.library.dto.BookSearchResponse;
-import com.library.exception.BookCopiesConflictException;
+import com.library.dto.BookStatsResponse;
 import com.library.dto.RatingRequest;
 import com.library.dto.RatingResponse;
-import com.library.dto.BookStatsResponse;
+import com.library.exception.BookCopiesConflictException;
 import com.library.exception.BookNotFoundException;
 import com.library.exception.DuplicateBookException;
 import com.library.exception.InvalidBookException;
@@ -205,10 +194,9 @@ public class BookServiceImpl implements BookService {
     book.setAvailableCopies(book.getAvailableCopies() + 1);
     return bookMapper.toResponse(bookRepository.save(book));
   }
-  
+
   public RatingResponse addRating(Long id, RatingRequest request) {
-    Book book =
-        bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+    Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
 
     int currentTotal = book.getTotalRatings();
     double currentAverage = book.getMediaRating();
@@ -226,8 +214,7 @@ public class BookServiceImpl implements BookService {
   @Override
   @Transactional(readOnly = true)
   public RatingResponse getRating(Long id) {
-    Book book =
-        bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+    Book book = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException(id));
 
     return new RatingResponse(book.getMediaRating(), book.getTotalRatings());
   }
