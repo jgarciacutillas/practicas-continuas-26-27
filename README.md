@@ -1,6 +1,6 @@
 # Biblioteca de libros
 
-API REST sencilla de una biblioteca, construida con Spring Boot 3, Java 21, Spring Data JPA y H2. El proyecto está diseñado para cumplir los requisitos de una aplicación no trivial sin introducir complejidad innecesaria.
+API REST sencilla de una biblioteca, construida con Spring Boot 3, Java 21, Spring Data JPA, Hibernate y PostgreSQL. El proyecto está diseñado para cumplir los requisitos de una aplicación no trivial sin introducir complejidad innecesaria.
 
 ## Requisitos
 
@@ -56,7 +56,7 @@ La suite contiene 15 tests unitarios en total:
 - manejo centralizado de errores: 404 para libro inexistente y 400 para una regla de negocio inválida;
 - validaciones de DTO: título obligatorio, ISBN con 10/13 dígitos, páginas positivas y año mínimo.
 
-No se utiliza `@SpringBootTest`, `@WebMvcTest`, `@DataJpaTest` ni se levanta una base de datos para los tests.
+La suite mantiene los tests unitarios y un test de repositorio con `@DataJpaTest`. Este último usa H2 únicamente en test para no requerir un PostgreSQL externo durante `mvn test`; la aplicación en ejecución utiliza exclusivamente PostgreSQL.
 
 ## Empaquetado ejecutable
 
@@ -67,7 +67,15 @@ mvn clean package
 java -jar target/book-library.jar
 ```
 
-La aplicación utiliza H2 en memoria y crea el esquema automáticamente al arrancar.
+La aplicación utiliza PostgreSQL como base de datos persistente. La conexión se configura mediante `DB_URL`, `DB_USERNAME` y `DB_PASSWORD`, con estos valores por defecto para desarrollo local:
+
+```text
+DB_URL=jdbc:postgresql://localhost:5432/librarydb
+DB_USERNAME=library
+DB_PASSWORD=library
+```
+
+Hibernate mantiene el esquema actualizado mediante `spring.jpa.hibernate.ddl-auto=update`.
 
 La ampliación añade 5 tests unitarios al conjunto existente.
 
