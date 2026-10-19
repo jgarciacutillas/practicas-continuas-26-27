@@ -1,6 +1,6 @@
 # Biblioteca de libros
 
-API REST sencilla de una biblioteca, construida con Spring Boot 3, Java 21, Spring Data JPA y H2. El proyecto está diseñado para cumplir los requisitos de una aplicación no trivial sin introducir complejidad innecesaria.
+API REST sencilla de una biblioteca, construida con Spring Boot 3, Java 21, Spring Data JPA, Hibernate y PostgreSQL. El proyecto está diseñado para cumplir los requisitos de una aplicación no trivial sin introducir complejidad innecesaria.
 
 ## Requisitos
 
@@ -56,7 +56,7 @@ La suite contiene 15 tests unitarios en total:
 - manejo centralizado de errores: 404 para libro inexistente y 400 para una regla de negocio inválida;
 - validaciones de DTO: título obligatorio, ISBN con 10/13 dígitos, páginas positivas y año mínimo.
 
-No se utiliza `@SpringBootTest`, `@WebMvcTest`, `@DataJpaTest` ni se levanta una base de datos para los tests.
+La suite mantiene los tests unitarios y un test de repositorio con `@DataJpaTest`. Este último usa H2 únicamente en test para no requerir un PostgreSQL externo durante `mvn test`; la aplicación en ejecución utiliza exclusivamente PostgreSQL.
 
 ## Empaquetado ejecutable
 
@@ -67,7 +67,15 @@ mvn clean package
 java -jar target/book-library.jar
 ```
 
-La aplicación utiliza H2 en memoria y crea el esquema automáticamente al arrancar.
+La aplicación utiliza PostgreSQL como base de datos persistente. La conexión se configura mediante `DB_URL`, `DB_USERNAME` y `DB_PASSWORD`, con estos valores por defecto para desarrollo local:
+
+```text
+DB_URL=jdbc:postgresql://localhost:5432/librarydb
+DB_USERNAME=library
+DB_PASSWORD=library
+```
+
+Hibernate mantiene el esquema actualizado mediante `spring.jpa.hibernate.ddl-auto=update`.
 
 La ampliación añade 5 tests unitarios al conjunto existente.
 
@@ -89,4 +97,115 @@ La respuesta de búsqueda usa un DTO propio para mantener estable el contrato JS
 Para que lance el hook de formateo automático debes ejecutar el siguiente comando:
 ```bash
 git config core.hooksPath .githooks
-```prueba
+```
+
+## Ejecución con Docker
+
+La aplicación puede ejecutarse mediante Docker, utilizando contenedores para la API REST y PostgreSQL. De esta forma, se simplifica la configuración del entorno y se evita instalar las dependencias de la aplicación directamente en el sistema anfitrión.
+
+### Requisitos previos
+
+- Docker Desktop.
+- Docker Compose v2.
+
+### Arranque de la aplicación
+
+Desde la raíz del proyecto, ejecutar:
+
+```bash
+docker compose up --build -d
+```
+
+Este comando construye la imagen de la aplicación, si es necesario, y arranca los servicios definidos en la configuración de Docker Compose.
+
+El nombre `app` debe coincidir con el nombre del servicio de la aplicación definido en el archivo Compose.
+
+### Acceso a la API
+
+Una vez iniciados los servicios, para comprobar que la API se arrancó correctamente, utilizamos la siguiente URL:
+
+```text
+http://localhost:8080/actuator/health
+```
+En caso de que se encuentre iniciado correctamente, devolverá la siguiente respuesta:
+```text
+{
+    "status": "UP"
+}
+```
+
+La base de datos PostgreSQL se configura mediante las variables de entorno `DB_URL`, `DB_USERNAME` y `DB_PASSWORD`.
+
+Los datos de PostgreSQL se almacenan en un volumen persistente, de modo que no se pierden al detener y volver a iniciar los contenedores.
+
+Finalmente para probar la API con todas las funcionalidad CRUD, debemos usar la siguiente URL:
+`http://localhost:8080/api/books`
+
+### Detener la aplicación
+
+Para detener los servicios:
+
+```bash
+docker compose down
+```
+
+Este comando detiene y elimina los contenedores, pero conserva los volúmenes persistentes. Para eliminar también los volúmenes y los datos almacenados en ellos:
+
+```bash
+docker compose down -v
+```
+
+**Advertencia:** el último comando elimina los datos persistidos de los volúmenes asociados al proyecto.
+
+## Desarrollo con DevContainer
+
+El proyecto puede desarrollarse desde un DevContainer, proporcionando un entorno de desarrollo preconfigurado y reproducible.
+
+### Requisitos previos
+
+- Docker Desktop, o un entorno compatible con Docker.
+- Visual Studio Code.
+- La extensión Dev Containers de Visual Studio Code.
+
+### Apertura del entorno
+
+1. Clonar el repositorio y abrir la carpeta del proyecto en Visual Studio Code.
+2. Abrir la paleta de comandos con `Ctrl + Shift + P`.
+3. Seleccionar `Dev Containers: Reopen in Container`.
+4. Esperar a que se construya y se inicie el entorno de desarrollo.
+
+La configuración del DevContainer debe proporcionar las herramientas necesarias para desarrollar la aplicación, incluyendo Java 21 y Maven 3.9 o superior. Si PostgreSQL se ejecuta como un servicio independiente de Docker Compose, también debe configurarse la conectividad entre ambos servicios.
+
+### Ejecución y pruebas
+
+Una vez dentro del entorno de desarrollo, realizamos el comando para construir el contenedor de nuestra aplicación.
+```bash
+docker compose up --build
+```
+Y tras esto, podemos probar su correcto funcionamiento probando su acceso mediante el navegador web de nuestra preferencia sobre la siguiente URL.
+```text
+http://localhost:8080/actuator/health
+```
+Que en caso de que nuestra API se encuentre funcionando correctamente, nos devuelve la siguiente respuesta.
+```text
+{
+    "status": "UP"
+}
+```
+Por lo que ya podemos probar todas sus funcionalidades CRUD con la URL `http://localhost:8080/api/books`.
+
+### Cierre del entorno
+
+Para cerrar el entorno, salir del contenedor desde Visual Studio Code. Los comandos de ciclo de vida de los contenedores y de PostgreSQL dependerán de la configuración de Docker Compose utilizada por el proyecto.
+
+## Configuración de desarrollo
+
+La aplicación utiliza las siguientes variables de entorno para conectarse a PostgreSQL:
+
+| Variable | Valor predeterminado de ejemplo |
+|---|---|
+| `POSTGRES_DB` | `tareas` |
+| `POSTGRES_USER` | `app` |
+| `POSTGRES_PASSWORD` | `cambia_esto` |
+
+Los valores predeterminados están destinados al desarrollo local, para ello habrá que crear un archivo `.env` usando el fichero `.env.example` cambiando los valores que aparecen de ejemplo por los valores reales que se vayan a usar para las pruebas en el desarrollo. En otros entornos, deben configurarse las credenciales correspondientes y evitar almacenar contraseñas reales en el repositorio.
