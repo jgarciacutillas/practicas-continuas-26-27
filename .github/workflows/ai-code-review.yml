@@ -1,0 +1,98 @@
+
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    name: AI Code Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Generate AI review
+        id: review
+        continue-on-error: true
+        env:
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${OLLAMA_API_KEY:-}" ]; then
+            echo "La IA ha fallado" > review.md
+            exit 1
+          fi
+
+          git fetch --no-tags origin "$BASE_SHA"
+
+          git diff --no-ext-diff \
+            "$BASE_SHA" "$HEAD_SHA" \
+            -- . ':!*.lock' > diff.txt
+
+          if [ ! -s diff.txt ]; then
+            echo "No hay cambios que revisar." > review.md
+            exit 0
+          fi
+
+          # Limitamos el tamaño para evitar peticiones excesivas.
+          head -c 40000 diff.txt > diff-limited.txt
+
+          jq -n \
+            --rawfile diff diff-limited.txt \
+            '{
+              model: "gemma4:31b",
+              stream: false,
+              messages: [
+                {
+                  role: "system",
+                  content: "Eres un revisor de código experto. Escribe en español un resumen claro de los cambios del Pull Request. Explica qué se ha modificado, los aspectos importantes y posibles problemas detectados. No inventes cambios que no aparezcan en el diff."
+                },
+                {
+                  role: "user",
+                  content: ("Revisa este diff:\n\n" + $diff)
+                }
+              ]
+            }' > request.json
+
+          curl --fail --silent --show-error \
+            --max-time 180 \
+            https://ollama.com/api/chat \
+            -H "Authorization: Bearer ${OLLAMA_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d @request.json \
+            -o response.json
+
+          jq -er '.message.content | select(type == "string" and length > 0)' \
+            response.json > review.md
+
+      - name: Prepare failure message
+        if: steps.review.outcome == 'failure'
+        run: echo "La IA ha fallado" > review.md
+
+      - name: Comment on Pull Request
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          gh api \
+            --method POST \
+            "repos/${REPOSITORY}/issues/${PR_NUMBER}/comments" \
+            -f body="$(cat review.md)"
