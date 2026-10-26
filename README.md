@@ -1,5 +1,7 @@
 # Biblioteca de libros
 
+[![CI](https://github.com/jgarciacutillas/practicas-continuas-26-27/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jgarciacutillas/practicas-continuas-26-27/actions/workflows/ci.yml)
+
 API REST sencilla de una biblioteca, construida con Spring Boot 3, Java 21, Spring Data JPA, Hibernate y PostgreSQL. El proyecto está diseñado para cumplir los requisitos de una aplicación no trivial sin introducir complejidad innecesaria.
 
 ## Requisitos
