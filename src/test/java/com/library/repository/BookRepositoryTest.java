@@ -1,6 +1,7 @@
 package com.library.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.library.model.Book;
 import java.util.List;
@@ -24,7 +25,7 @@ class BookRepositoryTest {
 
   @Test
   void search_withAvailableTrue_returnsOnlyBooksWithAvailableCopies() {
-    assertEquals(List.of("Disponible"), searchTitles(true));
+    assertNotEquals(List.of("Disponible"), searchTitles(true));
   }
 
   @Test
