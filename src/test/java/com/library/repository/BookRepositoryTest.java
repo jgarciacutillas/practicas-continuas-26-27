@@ -25,7 +25,7 @@ class BookRepositoryTest {
 
   @Test
   void search_withAvailableTrue_returnsOnlyBooksWithAvailableCopies() {
-    assertNotEquals(List.of("Disponible"), searchTitles(true));
+    assertEquals(List.of("Disponible"), searchTitles(true));
   }
 
   @Test
