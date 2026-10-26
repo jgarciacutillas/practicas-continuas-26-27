@@ -27,57 +27,57 @@ import org.hibernate.annotations.ColumnDefault;
 @Builder
 public class Book {
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-@NotBlank
-@Size(max = 255)
-@Column(nullable = false, length = 255)
-private String title;
+  @NotBlank
+  @Size(max = 255)
+  @Column(nullable = false, length = 255)
+  private String title;
 
-@NotBlank
-@Size(max = 255)
-@Column(nullable = false, length = 255)
-private String author;
+  @NotBlank
+  @Size(max = 255)
+  @Column(nullable = false, length = 255)
+  private String author;
 
-@NotBlank
-@Size(max = 100)
-@Column(nullable = false, length = 100)
-private String genre;
+  @NotBlank
+  @Size(max = 100)
+  @Column(nullable = false, length = 100)
+  private String genre;
 
-@Pattern(regexp = "^(?:\\d{10}|\\d{13})$")
-@Size(max = 20)
-@Column(length = 20, unique = true)
-private String isbn;
+  @Pattern(regexp = "^(?:\\d{10}|\\d{13})$")
+  @Size(max = 20)
+  @Column(length = 20, unique = true)
+  private String isbn;
 
-@Min(1450)
-@Max(2100)
-@Column(name = "published_year")
-private Integer publishedYear;
+  @Min(1450)
+  @Max(2100)
+  @Column(name = "published_year")
+  private Integer publishedYear;
 
-@Min(1)
-@Max(10000)
-@Column
-private Integer pages;
+  @Min(1)
+  @Max(10000)
+  @Column
+  private Integer pages;
 
-@Min(1)
-@ColumnDefault("1")
-@Column(nullable = false)
-@Builder.Default
-private Integer copies = 1;
+  @Min(1)
+  @ColumnDefault("1")
+  @Column(nullable = false)
+  @Builder.Default
+  private Integer copies = 1;
 
-@Min(0)
-@ColumnDefault("1")
-@Column(name = "available_copies", nullable = false)
-@Builder.Default
-private Integer availableCopies = 1;
+  @Min(0)
+  @ColumnDefault("1")
+  @Column(name = "available_copies", nullable = false)
+  @Builder.Default
+  private Integer availableCopies = 1;
 
-@Column(nullable = false)
-@Builder.Default
-private Double mediaRating = 0.0;
+  @Column(nullable = false)
+  @Builder.Default
+  private Double mediaRating = 0.0;
 
-@Column(nullable = false)
-@Builder.Default
-private Integer totalRatings = 0;
+  @Column(nullable = false)
+  @Builder.Default
+  private Integer totalRatings = 0;
 }
