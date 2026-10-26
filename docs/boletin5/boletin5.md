@@ -4,27 +4,35 @@
 
 | # | Mensaje del commit | Qué se hizo | Autor | Enlace |
 |---|--------------------|-------------|-------|--------|
-| 1 | `commit` | se_hizo_algo | nombre | [hash_commit](url) |
-| 2 | `commit` | se_hizo_algo | nombre | [hash_commit](url) |
-| 3 | `commit` | se_hizo_algo | nombre | [hash_commit](url) |
+| 1 | `docs: script y workflow para crear un github pages para la documentación` | Creación de script y workflow para publicar una página | Javier García Cutillas | [f7fffae]([url](https://github.com/jgarciacutillas/practicas-continuas-26-27/commit/f7fffaeaa6cda3a2ca29c948a72d0ddddefa9134)) |
 
 ## Detalle por commit
 
-### 1. `mensaje_del_commit`
-- **Qué se hizo:** se_hizo_algo 
-- **Autor:** nombre
-- **Relación con el boletín:** parte_z_hola
-- **Uso de IA:** no_se_ha_usado
-
-### 2. `mensaje_del_commit`
-- **Qué se hizo:** se_hizo_algo 
-- **Autor:** nombre
-- **Relación con el boletín:** parte_z_hola
-- **Uso de IA:** ia_usada_chatgpt_claude_gemini
+### 1. `docs: script y workflow para crear un github pages para la documentación`
+- **Qué se hizo:** Creación de script y workflow para publicar una página en la que se pueden observar todos los boletines realizados durante este periodo. Se puede observar a través de esta [url](https://jgarciacutillas.github.io/practicas-continuas-26-27/).
+- **Autor:** Javier García Cutillas
+- **Relación con el boletín:** Parte D - GitHub Pages de la documentación
+- **Uso de IA:** Claude
 
 #### Prompt
 ```bash
-prompt
+generame el script: Como dice el [Boletín 0](https://practicas-continuas-umu.github.io/apuntes/practicas/boletin0-guia-del-curso.html), has ido guardando la memoria de cada sesión (`boletinX.md`) en un repositorio/carpeta aparte. Toca traerla al repositorio de la API y publicarla como una web navegable.
+
+* Copia (o mueve) tus `boletinX.md` desde el repositorio donde los tenías a una carpeta `docs/` en la raíz del repositorio de la API, uno por sesión entregada hasta ahora (`docs/boletin1.md` … `docs/boletin5.md`).
+* Dentro de `docs/`, escribe un script (node o python) que lea todos los `.md` de `docs/` y genere, para cada uno, un `.html` equivalente más un `index.html` que enlace a todos. Deben guardarse en `docs/site/`. Recomiendo usar la IA para esto.
+* Prueba el script en local y revisa el resultado abriendo el HTML en el navegador.
+```
+
+```bash
+cada boletin es una carpeta con fotos y el .md dentro
+```
+
+```bash
+* Automatízalo con un workflow `.github/workflows/pages.yml` que, en cada push a `main`, ejecute el script y publique `docs/site/` en GitHub Pages con las acciones oficiales.
+```
+
+```bash
+moidifca el build-site.mjs que sea bonito y minimalista
 ```
 
 ## Descripción narrativa de lo hecho en la sesión y relación con los commits
@@ -39,4 +47,6 @@ prompt
 
 
 ### Parte D - GitHub Pages de la documentación
+Se ha creado un script y un workflow con Claude para crear y actualizar de manera dinámica, cada vez que se realiza un merge a main.
 
+![](./boletin5-parted.png)
