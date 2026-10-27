@@ -4,9 +4,14 @@
 
 | # | Mensaje del commit | Qué se hizo | Autor | Enlace |
 |---|--------------------|-------------|-------|--------|
-| 1 | `docs: script y workflow para crear un github pages para la documentación` | Creación de script y workflow para publicar una página | Javier García Cutillas | [f7fffae]([url](https://github.com/jgarciacutillas/practicas-continuas-26-27/commit/f7fffaeaa6cda3a2ca29c948a72d0ddddefa9134)) |
+| 1 | `docs: script y workflow para crear un github pages para la documentación` | Creación de script y workflow para publicar una página | Javier García Cutillas | [f7fffae](https://github.com/jgarciacutillas/practicas-continuas-26-27/commit/f7fffaeaa6cda3a2ca29c948a72d0ddddefa9134) |
+| 2 | `docs(boletin5): cambios en el boletin 5, añadida la parte d que ya está creada` | Se guarda la documentación de los boletines en el repositorio | Javier Garcia Cutillas | [e26cbe5](https://github.com/jgarciacutillas/practicas-continuas-26-27/commit/e26cbe5416fb5effd006cb2567c4840bd16fa835) |
+| 3 | `ci(cd): pipeline de publicacion` | Se creo el workflow de release | Jonathan Aleksander Llumitasig Chuquiana | [786dc1e](https://github.com/jgarciacutillas/practicas-continuas-26-27/commit/786dc1e74a5cefe95659bd23215b9e6837ca611b) |
+| 4 | `docs(boletin5): Punto A - Excepto ultimo apartado` | Se completo la documentaciñon del apartado A | Jonathan Aleksander Llumitasig Chuquiana | [752387a](https://github.com/jgarciacutillas/practicas-continuas-26-27/commit/752387a4c778f1a095865aa533bca00eafb73293) |
+| 5 | `docs(boletin5): Se completa los puntos A, B y D` | Se completo el resto de apartados menos el C | Jonathan Aleksander Llumitasig Chuquiana | [d69760b](https://github.com/jgarciacutillas/practicas-continuas-26-27/commit/d69760b6a5f7ca9bf3ec420e99f1ea7183ed2a30) |
+| 6 | `docs(boletin5): finalizacion del boletin 5` | Se finalizo la documentacion del boletin 5 | Jonathan Aleksander Llumitasig Chuquiana | [ed21130](https://github.com/jgarciacutillas/practicas-continuas-26-27/commit/ed21130bc17b33237041c1eceb72dbf6b753b54f) |
 
-## Detalle por commit
+## Detalle por commit   
 
 ### 1. `docs: script y workflow para crear un github pages para la documentación`
 - **Qué se hizo:** Creación de script y workflow para publicar una página en la que se pueden observar todos los boletines realizados durante este periodo. Se puede observar a través de esta [url](https://jgarciacutillas.github.io/practicas-continuas-26-27/).
@@ -34,6 +39,37 @@ cada boletin es una carpeta con fotos y el .md dentro
 ```bash
 moidifca el build-site.mjs que sea bonito y minimalista
 ```
+
+### 2. `docs(boletin5): cambios en el boletin 5, añadida la parte d que ya está creada`
+- **Qué se hizo:** Se documetno el apartado D del boletin 5.
+- **Autor:** Javier García Cutillas
+- **Relación con el boletín:** Parte D - GitHub Pages de la documentación
+- **Uso de IA:** No se ha usado
+
+### 3. `ci(cd): pipeline de publicacion`
+- **Qué se hizo:** Se crea el workflow para los release del repositorio para la publicación de versiones de nuestra API
+- **Autor:** Jonathan Aleksander Llumitasig Chuquiana
+- **Relación con el boletín:** Parte A - Pipeline de publicación
+- **Uso de IA:** No se ha usado
+
+### 4. `docs(boletin5): Punto A - Excepto ultimo apartado`
+- **Qué se hizo:** Se documenta el apartado A del boletin 5, a excepcion del ultimo subapartado
+- **Autor:** Jonathan Aleksander Llumitasig Chuquiana
+- **Relación con el boletín:** Parte A - Pipeline de publicación
+- **Uso de IA:** No se ha usado
+
+### 5. `docs(boletin5): Se completa los puntos A, B y D`
+- **Qué se hizo:** Se documenta los apartado A, B y D del boletin 5
+- **Autor:** Jonathan Aleksander Llumitasig Chuquiana
+- **Relación con el boletín:** Parte B - Publicar una versión de verdad
+- **Uso de IA:** No se ha usado
+
+### 6. `docs(boletin5): finalizacion del boletin 5`
+- **Qué se hizo:** Se documenta todos los apartados del boletin 5 por completo
+- **Autor:** Jonathan Aleksander Llunitasig Chuquiana
+- **Relación con el boletín:** Parte C - Verificar la imagen publicada
+- **Uso de IA:** No se ha usado
+
 
 ## Descripción narrativa de lo hecho en la sesión y relación con los commits
 
@@ -99,7 +135,7 @@ Cuando publicamos una etiquet vX.Y.Z, se ejecuta el workflow ya que coincide con
 
 **Comprueba que la imagen aparece en la pestaña Packages del repositorio, etiquetada con el SHA del commit y con latest.**
 
-
+![Pestaña Package del repositorio, con el SHA del commit y la etiqueta latest](./boletin5-package-repositorio.png)
 
 ### Parte B - Publicar una versión de verdad
 
@@ -124,6 +160,13 @@ Y finalmente, creamos un Release a partir de esa etiqueta de versión, en el que
 
 ### Parte C - Verificar la imagen publicada
 
+Para la comprobación de que la imagen publicada funciona correctamente, se realizo la descarga de la imagen y su posterior arranque, sin embargo, como nuestra imagen necesita una base de datos Postgres real, hacemos previamente una `network` para nuestros contenedor y una base de datos, todo ello en Docker, y finalmente descargamos la imagen de nuestro repositorio y lo arrancamos. Y podemos ver como mediante la peticion `curl http://localhost:8080/actuator/health` que nuestro servicio ha arrancado correctamente.
+
+![Verificación de la imagen publicada](./boletin5-uso-imagen-publicada.png)
+
+Finalmente, elliminamos todos los contenedores que creamos para la prueba de verificación, asi como la red que creamos.
+
+![Eliminación de la base de datos y de la API](./boletin5-elimado-de-contenedores.png)
 
 ### Parte D - GitHub Pages de la documentación
 Se ha creado un script y un workflow con Claude para crear y actualizar de manera dinámica, cada vez que se realiza un merge a main.
