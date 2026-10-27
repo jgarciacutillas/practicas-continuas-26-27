@@ -87,6 +87,19 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 ``` 
 
+**Explica qué ocurre en estas dos ocasiones:** 
+
+**1) al fusionar un PR a main** 
+
+Cuando se fusiona un PR a main, se genera un push a esa rama y se ejecuta el workflow. Y además con el step `Construir y publicar`, se generan distintas etiquetas para la imagen, sha-`<commit>` consiguiendo una trazabilidad absoluta de la imagen al commit que la produjo; además se genera la etiqueta `latest` porque se hace fusión a `main`, que se trata de nuestra rama principal. Y no se generan etiquetas de version porque este evento no corresponde a una etiqueta Git de versión.
+
+**2) al publicar una etiqueta vX.Y.Z. ¿Qué tags de imagen se generan en cada caso y por qué?**
+
+Cuando publicamos una etiquet vX.Y.Z, se ejecuta el workflow ya que coincide con el patrón `v*.*.*`, y se generarian las siguiente etiquetas, sha-`<commit>`, y las etiquetas de versión, `X.Y.Z` para la version completa, `X.Y` para la versión mayor y menor; y `X` para la versión mayor. Sin embargo, no se genera una etiqueta `latest`, ya que dependemos de `enable={{is_default_branch}}` que evalua si el evento ocurre en una rama predeterminada, y al publicar unicamente la etiqueta, este flag normalmente será falso.
+
+**Comprueba que la imagen aparece en la pestaña Packages del repositorio, etiquetada con el SHA del commit y con latest.**
+
+
 
 ### Parte B - Publicar una versión de verdad
 
