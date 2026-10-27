@@ -103,6 +103,24 @@ Cuando publicamos una etiquet vX.Y.Z, se ejecuta el workflow ya que coincide con
 
 ### Parte B - Publicar una versión de verdad
 
+Para la publicación de una versión, en este caso, la primera versión de nuestra API de libros, usamos los siguientes comandos:
+
+```bash
+git tag -a v1.0.0 -m "Primera versión publicable de la API de tareas"
+git push origin v1.0.0
+```
+
+Al hacer un push de la etiqueta de versión, vemos que salta el workflow porque se ha producido el evento de publicación de versión.
+
+![Comprobación de la ejecucion del workflow de Release](./boletin5-workflow-release.png)
+
+Y también vemos como la imagen tiene dicha etiqueta.
+
+![Tag de version](./boletin5-tag-version.png)
+
+Y finalmente, creamos un Release a partir de esa etiqueta de versión, en el que describimos con notas todos los cambios hechos en esa versión, y para este caso, hemos utilizado la opción "Genereate release notes".
+
+![Release de la version inicial](./boletin5-release-version-inicial.png)
 
 ### Parte C - Verificar la imagen publicada
 
