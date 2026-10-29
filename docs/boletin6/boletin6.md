@@ -103,18 +103,45 @@ Y finalmente comprobamos que nos podemos conectar mediante SSH y utilizando la c
 
 - Acceso mediante SSH a `app1`:
 
-![alt text](image.png)
+![Acceso mediante ssh a app1](./boletin6-ssh-app1.png)
 
 - Acceso mediante SSH a `app2`:
 
-![alt text](image-1.png)
+![Acceso mediante ssh a app2](./boletin6-ssh-app2.png)
 
-- Acceso mediante SSH a `db`:
+- Acceso mediante SSH a `db1`:
 
-![alt text](image-2.png)
+![Acceso mediante ssh a db1](./boletin6-ssh-app3.png)
 
 ### Parte C - El inventario
 
+Creamos el fichero en `deploy/inventory.ini`.
+```ini
+[app]
+app1 ansible_host=localhost ansible_port=2223 ansible_user=root
+app2 ansible_host=localhost ansible_port=2224 ansible_user=root
+
+[db]
+db1 ansible_host=localhost ansible_port=2225 ansible_user=root
+
+[servidores:children]
+app
+db
+
+[servidores:vars]
+ansible_python_interpreter=/usr/bin/python3
+ansible_password=root
+ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+```
+
+Ademas, al no contar con `sshpass`, lo instalamos con el siguiente comando
+
+```bash
+sudo apt install -y sshpass
+```
+Y comprobamos que se realiza la conexión con `ping` de Ansible a toda la flota, ya que nos responden con un `pong`.
+
+![Ping de Ansible a toda la flota](./boletin6-ping-ansible-flota.png)
 
 ### Parte D - El playbook de despliegue
 
