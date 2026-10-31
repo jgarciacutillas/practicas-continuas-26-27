@@ -623,8 +623,90 @@ Y observamos que el rollback para volver a la `v1.0.0` tarda menos de un minuto,
 
 ### Parte G - Disparar el despliegue desde GitHub Actions (cierre CD)
 
+#### G.1 - Registrar tu ordenador como runner
 ![Runners](boletin6-parte-g-runners.png)
 
+#### G.2 - Entorno protegido y secreto del Vault
 ![Idle](boletin6-parte-g-idle.png)
-
 ![Environments](boletin-6-environments.png)
+
+#### G.3 - Ampliar el release.yml
+Se ha ampliado el workflow `release.yml`
+
+```yml
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ "v*.*.*" ]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.meta.outputs.version }}   # NUEVO: 1.0.0 cuando el tag es v1.0.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login en GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Metadatos (tags)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha,prefix=sha-
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Construir y publicar
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # NUEVO: todo lo que sigue es lo que añades en esta parte
+  deploy:
+    needs: publish                                  # solo si la imagen se publicó bien
+    # solo al publicar una versión (tag vX.Y.Z), no en cada push a main
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: self-hosted                            # tu ordenador
+    environment: produccion                         # se detiene aquí hasta que un reviewer lo apruebe
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar la collection de Ansible
+        run: ansible-galaxy collection install -r deploy/requirements.yml
+
+      - name: Desplegar con Ansible
+        env:
+          VAULT_PASS: ${{ secrets.VAULT_PASS }}
+          VERSION: ${{ needs.publish.outputs.version }}
+        run: |
+          VAULT_FILE="$(mktemp)"
+          trap 'rm -f "$VAULT_FILE"' EXIT
+          printf '%s' "$VAULT_PASS" > "$VAULT_FILE"
+          ansible-playbook -i deploy/inventory.ini deploy/deploy.yml \
+            --vault-password-file "$VAULT_FILE" \
+            --extra-vars "version_app=$VERSION"
+```
+
+#### G.4 - Pruébalo de extremo a extremo
+
